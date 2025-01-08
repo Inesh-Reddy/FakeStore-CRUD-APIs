@@ -2,6 +2,7 @@ package dev.inesh.fakestorecrudapis.Services;
 
 import dev.inesh.fakestorecrudapis.Dtos.FakestoreProductServiceDto;
 import dev.inesh.fakestorecrudapis.Models.Product;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -15,6 +16,31 @@ public class FakestoreProductService implements ProductService {
         this.restTemplate = restTemplate;
     }
 
+    @Override
+    public ResponseEntity<Product> getProductById(Long id) {
+        ResponseEntity<FakestoreProductServiceDto> response = restTemplate.getForEntity(
+                "https://fakestoreapi.com/products/" + id,
+                FakestoreProductServiceDto.class
+        );
+        return ResponseEntity.ok(
+                Objects.requireNonNull(
+                                response.getBody()
+                        ).toProduct());
+    }
+
+    @Override
+    public Product[] getAllProducts() {
+        FakestoreProductServiceDto[] products = restTemplate.getForObject(
+                "https://fakestoreapi.com/products/",
+                FakestoreProductServiceDto[].class
+        );
+        assert products != null;
+        Product[] productArray = new Product[products.length];
+        for(int i = 0; i < products.length; i++) {
+            productArray[i] = products[i].toProduct();
+        }
+        return productArray;
+    }
 
     @Override
     public Product createProduct(Long id, String title, String description, Double price, String category, String image) {
@@ -27,29 +53,10 @@ public class FakestoreProductService implements ProductService {
         fakestoreProductServiceDto.setImage(image);
 
         return Objects.requireNonNull(restTemplate.postForObject(
-                "https://fakestoreapi.com/products/",
-                fakestoreProductServiceDto,
-                FakestoreProductServiceDto.class))
-                .toProduct();
-    }
-
-    @Override
-    public Product[] getAllProducts() {
-        FakestoreProductServiceDto[] products = restTemplate.getForObject("https://fakestoreapi.com/products/", FakestoreProductServiceDto[].class);
-        assert products != null;
-        Product[] productArray = new Product[products.length];
-        for(int i = 0; i < products.length; i++) {
-            productArray[i] = products[i].toProduct();
-        }
-        return productArray;
-    }
-
-    @Override
-    public Product getProductById(Long id) {
-        return Objects.requireNonNull(restTemplate.getForObject(
-                "https://fakestoreapi.com/products/" + id,
-                FakestoreProductServiceDto.class))
-                .toProduct();
+                        "https://fakestoreapi.com/products/",
+                        fakestoreProductServiceDto,
+                        FakestoreProductServiceDto.class)
+                ).toProduct();
     }
 
     @Override
@@ -63,10 +70,13 @@ public class FakestoreProductService implements ProductService {
         return "Product updated.";
     }
 
-
     @Override
     public String deleteProduct(Long id) {
-        restTemplate.delete("https://fakestoreapi.com/products/" + id);
-        return MessageFormat.format("deleted Product with id: {0}", id);
+        restTemplate.delete(
+                "https://fakestoreapi.com/products/" + id
+        );
+        return MessageFormat.format(
+                "deleted Product with id: {0}", id
+        );
     }
 }

@@ -3,17 +3,18 @@ package dev.inesh.fakestorecrudapis.Controllers;
 import dev.inesh.fakestorecrudapis.Dtos.FakestoreProductServiceDto;
 import dev.inesh.fakestorecrudapis.Models.Product;
 import dev.inesh.fakestorecrudapis.Services.FakestoreProductService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class ProductController {
-    private FakestoreProductService fakestoreProductService;
+    private final FakestoreProductService fakestoreProductService;
     public ProductController(FakestoreProductService fakestoreProductService) {
         this.fakestoreProductService = fakestoreProductService;
     }
 
     @GetMapping(value = "/FakeStore/Products/{id}")
-    public Product getProduct(@PathVariable long id) {
+    public ResponseEntity<Product> getProduct(@PathVariable long id) {
         return fakestoreProductService.getProductById(id);
     }
 
