@@ -1,6 +1,7 @@
 package dev.inesh.fakestorecrudapis.Controllers;
 
-import dev.inesh.fakestorecrudapis.Dtos.FakestoreProductServiceDto;
+import dev.inesh.fakestorecrudapis.Dtos.ErrorDto;
+import dev.inesh.fakestorecrudapis.Exceptions.ProductException;
 import dev.inesh.fakestorecrudapis.Models.Product;
 import dev.inesh.fakestorecrudapis.Services.FakestoreProductService;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,7 @@ public class ProductController {
     }
 
     @GetMapping(value = "/FakeStore/Products/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable long id) {
+    public ResponseEntity<Product> getProduct(@PathVariable long id) throws ProductException {
         return fakestoreProductService.getProductById(id);
     }
 
@@ -51,5 +52,12 @@ public class ProductController {
     @DeleteMapping(value = "/FakeStore/Products/{id}")
     public String deleteProduct(@PathVariable long id) {
         return fakestoreProductService.deleteProduct(id);
+    }
+
+    @ExceptionHandler(ProductException.class)
+    public ErrorDto handleProductException(ProductException exception) {
+        ErrorDto errorDto = new ErrorDto();
+        errorDto.setMessage(exception.getMessage());
+        return errorDto;
     }
 }

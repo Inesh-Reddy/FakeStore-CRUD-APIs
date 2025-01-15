@@ -1,6 +1,7 @@
 package dev.inesh.fakestorecrudapis.Services;
 
 import dev.inesh.fakestorecrudapis.Dtos.FakestoreProductServiceDto;
+import dev.inesh.fakestorecrudapis.Exceptions.ProductException;
 import dev.inesh.fakestorecrudapis.Models.Product;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,11 +18,14 @@ public class FakestoreProductService implements ProductService {
     }
 
     @Override
-    public ResponseEntity<Product> getProductById(Long id) {
+    public ResponseEntity<Product> getProductById(Long id) throws ProductException {
         ResponseEntity<FakestoreProductServiceDto> response = restTemplate.getForEntity(
                 "https://fakestoreapi.com/products/" + id,
                 FakestoreProductServiceDto.class
         );
+        if(response.getBody() == null) {
+            throw new ProductException(MessageFormat.format("Product with id {0} not found", id));
+        }
         return ResponseEntity.ok(
                 Objects.requireNonNull(
                                 response.getBody()
@@ -43,14 +47,14 @@ public class FakestoreProductService implements ProductService {
     }
 
     @Override
-    public Product createProduct(Long id, String title, String description, Double price, String category, String image) {
+    public Product createProduct(Long id, String title, String description, Double price, String category, String imageUrl) {
         FakestoreProductServiceDto fakestoreProductServiceDto = new FakestoreProductServiceDto();
         fakestoreProductServiceDto.setId(id);
         fakestoreProductServiceDto.setTitle(title);
         fakestoreProductServiceDto.setDescription(description);
         fakestoreProductServiceDto.setPrice(price);
         fakestoreProductServiceDto.setCategory(category);
-        fakestoreProductServiceDto.setImage(image);
+        fakestoreProductServiceDto.setImage(imageUrl);
 
         return Objects.requireNonNull(restTemplate.postForObject(
                         "https://fakestoreapi.com/products/",
