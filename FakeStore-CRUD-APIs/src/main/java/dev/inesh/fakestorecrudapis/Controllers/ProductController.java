@@ -4,6 +4,7 @@ import dev.inesh.fakestorecrudapis.Dtos.ErrorDto;
 import dev.inesh.fakestorecrudapis.Exceptions.ProductException;
 import dev.inesh.fakestorecrudapis.Models.Product;
 import dev.inesh.fakestorecrudapis.Services.FakestoreProductService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,9 +56,9 @@ public class ProductController {
     }
 
     @ExceptionHandler(ProductException.class)
-    public ErrorDto handleProductException(ProductException exception) {
+    public ResponseEntity<ErrorDto> handleProductException(ProductException exception) {
         ErrorDto errorDto = new ErrorDto();
         errorDto.setMessage(exception.getMessage());
-        return errorDto;
+        return new ResponseEntity<>(errorDto, HttpStatus.NOT_FOUND);
     }
 }
